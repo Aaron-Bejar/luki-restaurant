@@ -1,7 +1,7 @@
 # Tareas: Pedidos por persona
 
-- [ ] T001 Crear la estructura Expo con Expo Router, TypeScript y los directorios `app/` y `src/` definidos en el plan.
-- [ ] T002 Configurar `@supabase/supabase-js` en `src/lib/supabase.ts` con variables de entorno para URL y clave anónima.
+- [x] T001 Crear la estructura Expo con Expo Router, TypeScript y los directorios `app/` y `src/` definidos en el plan.
+- [x] T002 Configurar `@supabase/supabase-js` en `src/lib/supabase.ts` con variables de entorno para URL y clave anónima.
 - [ ] T003 Crear la migración inicial PostgreSQL con las tablas, claves, restricciones `CHECK`, valores por defecto e índices especificados.
 - [ ] T004 Crear datos iniciales de mesas, usuarios operativos, categorías y carta según la operación del restaurante.
 - [ ] T005 Implementar la RPC transaccional de apertura de mesa que impida más de un pedido activo por mesa.
