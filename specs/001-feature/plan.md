@@ -38,8 +38,10 @@ Las operaciones `abrir_mesa` y `cerrar_pedido` se expondrán como funciones Post
 | Operaciones de apertura y cierre mediante RPC | Garantiza consistencia cuando varios dispositivos actúan simultáneamente. |
 | Cancelación lógica o cantidad 0 | Conserva la auditoría de comandas y evita borrado físico operativo. |
 | `ON DELETE RESTRICT` en datos maestros | Evita destruir referencias históricas de carta, usuarios y mesas. |
+| IDs operativos `integer identity`; `usuario.id` UUID | PostgreSQL asigna los IDs de entidades centralizadas y el UUID del usuario queda disponible para enlazar con Auth cuando se defina el mecanismo de inicio de sesión. |
 | Administración de mesas solo para `owner` | Las meseras no pueden alterar la estructura de mesas ni afectar pedidos al intentar eliminar una mesa. |
 | Clave anónima pública solo en el cliente | Impide exponer credenciales de servicio en los dispositivos. |
+| Semilla de demostración sin usuarios | Las mesas y la carta de referencia son reproducibles; los usuarios y hashes bcrypt se cargan localmente fuera de Git. |
 
 ## Pruebas
 

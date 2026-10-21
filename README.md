@@ -11,6 +11,7 @@ Aplicación móvil para gestionar pedidos de restaurante por persona. Está dise
 - Cierre de pedidos con efectivo, tarjeta o billetera digital.
 - Histórico de pedidos pagados y líneas canceladas.
 - Administración de mesas, categorías y carta exclusiva para el dueño.
+- Administración exclusiva del dueño de cuentas de meseras: alta, activación, desactivación y restablecimiento seguro de PIN.
 
 ## Roles
 
@@ -29,6 +30,14 @@ La base de datos usa PostgreSQL administrado por Supabase como fuente única de 
 - El cierre guarda el método de pago, marca el pedido como pagado y libera la mesa en una operación atómica.
 - Las líneas de pedido no se eliminan por correcciones: se cancelan o se actualizan con cantidad 0.
 - Una mesa con pedidos activos o históricos no puede eliminarse, para conservar la integridad del historial.
+
+## Datos de demostración y usuarios operativos
+
+La migración de demostración carga siete mesas libres y una carta peruana con cinco categorías y veinticinco platos activos. Sus precios son referenciales en soles y se pueden editar posteriormente desde la administración del dueño.
+
+Los usuarios operativos no se versionan. Para crearlos en un entorno seguro, usa la plantilla local `supabase/user-provisioning.template.sql`, reemplaza los marcadores por nombres y hashes bcrypt generados fuera del repositorio, y ejecútala directamente contra el proyecto Supabase correspondiente. El archivo está ignorado por Git: no guardes PINes, hashes reales ni credenciales en archivos versionados, documentación o registros.
+
+Para validar la semilla en una base de prueba después de aplicar las migraciones, ejecuta `supabase/tests/demo_seed_data.sql`. La prueba comprueba mesas, categorías, platos, relaciones y precios. Ejecuta también `supabase/tests/order_lifecycle_rpcs.sql` para verificar que las RPC de apertura y cierre conservan un único pedido activo, guardan el pago y no dejan transiciones parciales. Ambas pruebas revierten sus datos al finalizar.
 
 ## Stack tecnológico
 

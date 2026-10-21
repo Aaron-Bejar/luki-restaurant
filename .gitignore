@@ -47,3 +47,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Local-only provisioning of operational users. It contains real names and bcrypt hashes.
+supabase/user-provisioning.template.sql

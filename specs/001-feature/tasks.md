@@ -2,11 +2,11 @@
 
 - [x] T001 Crear la estructura Expo con Expo Router, TypeScript y los directorios `app/` y `src/` definidos en el plan.
 - [x] T002 Configurar `@supabase/supabase-js` en `src/lib/supabase.ts` con variables de entorno para URL y clave anónima.
-- [ ] T003 Crear la migración inicial PostgreSQL con las tablas, claves, restricciones `CHECK`, valores por defecto e índices especificados.
-- [ ] T004 Crear datos iniciales de mesas, usuarios operativos, categorías y carta según la operación del restaurante.
-- [ ] T005 Implementar la RPC transaccional de apertura de mesa que impida más de un pedido activo por mesa.
-- [ ] T006 Implementar la RPC transaccional de cierre de pedido que persista el método de pago y libere la mesa.
-- [ ] T007 Implementar servicios de usuarios, carta, mesas y pedidos sin consultas Supabase directamente desde componentes de interfaz.
+- [x] T003 Crear la migración inicial PostgreSQL con las tablas, claves, restricciones `CHECK`, valores por defecto e índices especificados.
+- [x] T004 Crear datos iniciales de demostración: siete mesas, cinco categorías y veinticinco platos; aprovisionar usuarios operativos localmente con hashes bcrypt fuera de Git.
+- [x] T005 Implementar la RPC transaccional de apertura de mesa que impida más de un pedido activo por mesa.
+- [x] T006 Implementar la RPC transaccional de cierre de pedido que persista el método de pago y libere la mesa.
+- [x] T007 Implementar servicios de usuarios, carta, mesas y pedidos sin consultas Supabase directamente desde componentes de interfaz.
 - [ ] T008 Implementar la pantalla de acceso por PIN y la aplicación de permisos de interfaz por rol.
 - [ ] T009 Implementar la pantalla de mesas con sus estados libre y ocupada.
 - [ ] T010 Implementar la pantalla de pedido agrupada por persona, incluyendo alta, edición y cancelación lógica de líneas.
