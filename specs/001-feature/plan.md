@@ -21,7 +21,7 @@ La aplicación usa las siguientes entidades persistidas:
 
 | Entidad | Propósito | Integridad principal |
 | --- | --- | --- |
-| `usuario` | Identidad operativa y rol | Nombre único por `lower(btrim(nombre))`; PIN numérico de cuatro dígitos; rol `owner` o `waitress` |
+| `usuario` | Identidad operativa y rol | Nombre único por `lower(btrim(nombre))`; PIN numérico único de cuatro dígitos entre cuentas activas; rol `owner` o `waitress` |
 | `sesion_operativa` | Prueba temporal de identidad | Solo persiste el hash del token, usuario, vencimiento y revocación |
 | `categoria` | Agrupación de platos | No puede eliminarse si la carta la referencia |
 | `carta` | Plato y precio vigente | Precio no negativo; categoría referenciada |
@@ -45,6 +45,8 @@ Las operaciones `abrir_mesa` y `cerrar_pedido` se expondrán como funciones Post
 | Administración de mesas solo para `owner` | Las meseras no pueden alterar la estructura de mesas ni afectar pedidos al intentar eliminar una mesa. |
 | Clave anónima pública solo en el cliente | Impide exponer credenciales de servicio en los dispositivos. |
 | Semilla de demostración sin usuarios | Las mesas y la carta de referencia son reproducibles; los usuarios y hashes bcrypt se cargan localmente fuera de Git. |
+| Token seguro y metadatos efímeros | `token_sesion` se guarda solo con `expo-secure-store`; nombre, rol y vencimiento viven solo en memoria para no persistir información de interfaz ni permitir restauraciones no verificadas. |
+| Acceso solo por PIN | La RPC identifica una única cuenta activa comparando bcrypt; rechaza coincidencias cero o múltiples y las altas/restablecimientos verifican disponibilidad del PIN bajo bloqueo transaccional. |
 
 ## Pruebas
 
@@ -55,4 +57,4 @@ Las operaciones `abrir_mesa` y `cerrar_pedido` se expondrán como funciones Post
 - Verificar subtotales por persona y total de mesa con ítems entregados, en cocina y cancelados.
 - Verificar que `owner` administre carta, categorías y mesas, y que `waitress` no pueda crear, modificar ni eliminar registros de mesas.
 - Verificar que no se pueda eliminar una mesa con pedidos activos o históricos.
-- Verificar inicio, vencimiento, revocación e impersonación de sesión; una RPC no debe aceptar un UUID del cliente como actor.
+- Verificar inicio exclusivo por PIN, rechazo de PIN inactivo, incorrecto o ambiguo, vencimiento, revocación e impersonación de sesión; una RPC no debe aceptar un UUID del cliente como actor.

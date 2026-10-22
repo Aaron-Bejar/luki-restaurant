@@ -4,7 +4,7 @@ Aplicación móvil para gestionar pedidos de restaurante por persona. Está dise
 
 ## Funcionalidades
 
-- Acceso operativo mediante nombre y PIN de cuatro dígitos.
+- Acceso operativo mediante PIN único de cuatro dígitos.
 - Gestión de mesas existentes y comandas por comensal.
 - Registro, edición y cancelación lógica de ítems de pedido.
 - Subtotales por persona y total consolidado de mesa.
@@ -35,7 +35,7 @@ La base de datos usa PostgreSQL administrado por Supabase como fuente única de 
 
 La migración de demostración carga siete mesas libres y una carta peruana con cinco categorías y veinticinco platos activos. Sus precios son referenciales en soles y se pueden editar posteriormente desde la administración del dueño.
 
-Los usuarios operativos no se versionan. Para crearlos en un entorno seguro, usa la plantilla local `supabase/user-provisioning.template.sql`, reemplaza los marcadores por nombres y hashes bcrypt generados fuera del repositorio, y ejecútala directamente contra el proyecto Supabase correspondiente. El archivo está ignorado por Git: no guardes PINes, hashes reales ni credenciales en archivos versionados, documentación o registros.
+Los usuarios operativos no se versionan. Para crearlos en un entorno seguro, usa la plantilla local `supabase/user-provisioning.template.sql`, reemplaza los marcadores por nombres y hashes bcrypt generados fuera del repositorio, y ejecútala directamente contra el proyecto Supabase correspondiente. Cada PIN debe ser único entre cuentas activas. El archivo está ignorado por Git: no guardes PINes, hashes reales ni credenciales en archivos versionados, documentación o registros.
 
 Para validar la semilla en una base de prueba después de aplicar las migraciones, ejecuta `supabase/tests/demo_seed_data.sql`. La prueba comprueba mesas, categorías, platos, relaciones y precios. Ejecuta también `supabase/tests/order_lifecycle_rpcs.sql` para verificar que las RPC de apertura y cierre conservan un único pedido activo, guardan el pago y no dejan transiciones parciales. Ambas pruebas revierten sus datos al finalizar.
 

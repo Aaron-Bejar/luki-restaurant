@@ -15,11 +15,11 @@ Como dueño, quiero restablecer el PIN de una mesera para recuperar el acceso de
 ## Requisitos funcionales
 
 - RF-001: Solo un usuario `owner` activo, derivado de una sesión operativa válida por el servidor, puede crear, activar, desactivar o restablecer el PIN de una cuenta con rol `waitress`.
-- RF-002: La creación exige un nombre no vacío y único por `lower(btrim(nombre))`, y un PIN numérico de cuatro dígitos; el servidor almacena únicamente su hash bcrypt.
+- RF-002: La creación exige un nombre no vacío y único por `lower(btrim(nombre))`, y un PIN numérico único de cuatro dígitos entre cuentas activas; el servidor almacena únicamente su hash bcrypt.
 - RF-003: La desactivación debe establecer `usuario.activo = false` sin eliminar la fila ni modificar sus pedidos históricos.
 - RF-004: Un usuario `waitress` inactivo no puede iniciar turno, aunque presente un PIN correcto.
 - RF-005: La activación debe establecer `usuario.activo = true` sin alterar el rol, historial ni PIN actual.
-- RF-006: El restablecimiento debe reemplazar solo `pin_hash` por un nuevo hash bcrypt de un PIN numérico de cuatro dígitos y conservar el estado `activo` actual.
+- RF-006: El restablecimiento debe reemplazar solo `pin_hash` por un nuevo hash bcrypt de un PIN numérico disponible de cuatro dígitos y conservar el estado `activo` actual.
 - RF-007: Una mesera no puede crear, activar, desactivar ni restablecer PINes de usuarios.
 - RF-008: Un `owner` no puede administrar mediante este flujo una cuenta `owner`; la gestión de dueños queda fuera de alcance.
 - RF-009: Las operaciones de gestión se ejecutan mediante RPC PostgreSQL; la aplicación móvil no inserta ni actualiza directamente `public.usuario`.
@@ -45,6 +45,7 @@ Como dueño, quiero restablecer el PIN de una mesera para recuperar el acceso de
 - Desactivar una cuenta ya inactiva y activar una cuenta ya activa debe ser idempotente y no alterar otros campos.
 - Un nombre que solo difiere por mayúsculas o espacios iniciales/finales no puede duplicar una cuenta existente; el valor se almacena sin esos espacios.
 - Un PIN con caracteres no numéricos o distinto de cuatro dígitos debe rechazarse antes de calcular un hash.
+- Un PIN que ya pertenece a una cuenta activa debe rechazarse durante el alta o restablecimiento.
 - Si una mesera tiene pedidos históricos o activos, su desactivación sigue permitida porque la cuenta no se elimina.
 
 ## Fuera de alcance

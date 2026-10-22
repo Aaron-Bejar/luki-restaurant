@@ -20,7 +20,7 @@ Como dueño, quiero conservar los pedidos cancelados y pagados para auditar vent
 
 ## Requisitos funcionales
 
-- RF-001: El sistema debe autenticar el cambio de turno con nombre normalizado y un PIN numérico de cuatro dígitos asociado a un usuario activo con rol `owner` o `waitress`, y emitir una sesión operativa temporal validable por el servidor.
+- RF-001: El sistema debe autenticar el cambio de turno únicamente con un PIN numérico único de cuatro dígitos asociado a un usuario activo con rol `owner` o `waitress`, y emitir una sesión operativa temporal validable por el servidor.
 - RF-002: Solo el rol `owner` puede crear, modificar o desactivar categorías y platos de la carta. El borrado físico solo puede intentarse si no existen referencias y la integridad referencial lo permite.
 - RF-003: Solo el rol `owner` puede crear, modificar o eliminar registros de `mesas`.
 - RF-004: El rol `waitress` puede consultar la carta y operar comandas sobre mesas existentes, pero no puede crear, modificar ni eliminar registros de `mesas`.
@@ -43,7 +43,7 @@ Como dueño, quiero conservar los pedidos cancelados y pagados para auditar vent
 
 ## Criterios de aceptación
 
-- Dado un nombre normalizado y un PIN válido de una cuenta activa, cuando un usuario inicia turno, entonces la aplicación recibe una sesión operativa temporal, identifica su nombre y rol y aplica los permisos de interfaz correspondientes sin exponer el PIN ni su hash.
+- Dado un PIN único válido de una cuenta activa, cuando un usuario inicia turno, entonces la aplicación recibe una sesión operativa temporal, identifica su nombre y rol y aplica los permisos de interfaz correspondientes sin exponer el PIN ni su hash.
 - Dado una mesa libre, cuando una mesera la abre, entonces queda ocupada y existe un único pedido activo vinculado a esa mesa.
 - Dado que dos dispositivos intentan abrir la misma mesa libre, cuando las operaciones se procesan concurrentemente, entonces solo una apertura tiene éxito.
 - Dado un pedido activo, cuando se agregan platos para personas distintas, entonces las líneas se visualizan y totalizan bajo la cabecera de cada persona.
@@ -65,6 +65,7 @@ Como dueño, quiero conservar los pedidos cancelados y pagados para auditar vent
 - Una mesera puede ocupar o liberar una mesa mediante el flujo de pedido, pero no puede cambiar su identificador ni eliminar su registro.
 - Una categoría o plato con referencias históricas no debe eliminarse si la restricción referencial lo impide.
 - El cierre de turno, el vencimiento o la revocación de una sesión impide nuevas operaciones protegidas.
+- Un PIN que coincida con más de una cuenta activa es inválido y no inicia un turno para evitar atribuirlo a la persona equivocada.
 
 ## Fuera de alcance
 

@@ -160,7 +160,7 @@ export type Database = {
         Returns: undefined;
       };
       iniciar_turno: {
-        Args: { p_nombre: string; p_pin: string };
+        Args: { p_pin: string };
         Returns: {
           expira_en: string;
           nombre: string;

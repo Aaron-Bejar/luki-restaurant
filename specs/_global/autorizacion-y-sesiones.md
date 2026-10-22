@@ -6,7 +6,9 @@
 crean ni se dependen de cuentas `auth.users` para los flujos definidos hasta
 ahora.
 
-El servidor autentica un turno mediante una RPC `iniciar_turno(nombre, pin)`.
+El servidor autentica un turno mediante una RPC `iniciar_turno(pin)`. Cada PIN
+de cuatro dígitos debe ser único entre las cuentas activas; la RPC rechaza una
+coincidencia cero o múltiple sin revelar cuál condición ocurrió.
 Tras comprobar el PIN bcrypt y que la cuenta esté activa, crea una sesión
 operativa de duración limitada. La base de datos almacena solo el hash del
 token de sesión, su usuario, vencimiento, revocación y auditoría mínima; el
@@ -21,16 +23,22 @@ Las tablas operativas no conceden escrituras directas al cliente móvil.
 
 - La aplicación guarda el token únicamente en almacenamiento seguro del
   dispositivo y no lo registra ni lo muestra.
+- El nombre, rol y vencimiento se mantienen únicamente en memoria para la
+  interfaz del turno actual. Si la aplicación se reinicia, no se restaura una
+  interfaz autenticada sin una RPC de validación que devuelva esos metadatos.
 - `cerrar_turno` revoca la sesión; las sesiones vencidas o revocadas no
   autorizan lecturas ni cambios.
 - Las RPC expuestas a `anon` solo aceptan el token de sesión cuando la acción
-  requiere un actor. El inicio de turno acepta nombre y PIN; todas usan
+  requiere un actor. El inicio de turno acepta únicamente un PIN; todas usan
   validación del servidor y fallan sin efectos parciales.
 - Las consultas que necesite la aplicación se exponen mediante RPC de lectura
   autorizadas o políticas RLS basadas en una sesión verificable. No se usa un
   UUID guardado en el cliente como prueba de identidad.
 - Los nombres de `usuario` se normalizan con `btrim` y su unicidad se aplica
   con `lower(btrim(nombre))`.
+- Las altas y restablecimientos de PIN verifican su disponibilidad frente a las
+  cuentas activas en la misma transacción; no se guarda un verificador
+  determinista adicional al hash bcrypt.
 
 ## Alcance de roles
 

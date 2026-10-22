@@ -18,9 +18,8 @@ export type SesionOperativa = {
   usuario_id: string;
 };
 
-export async function iniciarTurno(nombre: string, pin: string): Promise<SesionOperativa> {
+export async function iniciarTurno(pin: string): Promise<SesionOperativa> {
   const { data, error } = await supabase.rpc("iniciar_turno", {
-    p_nombre: nombre,
     p_pin: pin,
   });
 

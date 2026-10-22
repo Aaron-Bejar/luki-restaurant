@@ -14,7 +14,7 @@ Aplicación móvil para siete dispositivos que gestionan mesas y comandas de un 
 
 ## Flujos principales
 
-1. Un usuario inicia turno mediante nombre y PIN de cuatro dígitos; el servidor devuelve una sesión operativa de duración limitada.
+1. Un usuario inicia turno mediante un PIN único de cuatro dígitos; el servidor devuelve una sesión operativa de duración limitada.
 2. La mesera abre una mesa libre mediante una operación atómica que la ocupa y crea el pedido activo.
 3. La mesera registra líneas de comanda agrupadas por `num_persona`; las correcciones cambian estado o cantidad, sin eliminarlas.
 4. La aplicación calcula subtotales por persona y el total de líneas no canceladas.
@@ -36,7 +36,7 @@ Aplicación móvil para siete dispositivos que gestionan mesas y comandas de un 
 - Una mesa con pedidos asociados no puede eliminarse, incluso desde la administración del dueño, debido a la referencia restrictiva de `pedido`.
 - No se permite el borrado físico operativo de `detalle_pedido`; se usa cancelación lógica o cantidad 0 como evidencia auditable.
 - El historial de pedidos pagados nunca se reutiliza: cada nueva ocupación crea un `id_pedido` nuevo.
-- Los PINes operativos se guardan únicamente como hashes bcrypt en PostgreSQL; su validación se hará del lado del servidor y nunca se persistirán ni registrarán en texto plano en la aplicación.
+- Los PINes operativos son únicos entre cuentas activas y se guardan únicamente como hashes bcrypt en PostgreSQL; su validación se hará del lado del servidor y nunca se persistirán ni registrarán en texto plano en la aplicación.
 - La sesión operativa se prueba con un token aleatorio cuyo hash guarda PostgreSQL; las RPC derivan el actor de esa sesión y no aceptan un UUID del cliente como prueba de identidad. Véase `autorizacion-y-sesiones.md`.
 - Solo un owner activo validado por el servidor puede crear, activar, desactivar o restablecer el PIN de una cuenta `waitress`; estas operaciones usan RPC y no permiten escrituras directas desde el cliente sobre `usuario`.
 - La desactivación de una mesera es una baja lógica (`usuario.activo = false`): preserva los pedidos asociados y bloquea futuros inicios de turno.

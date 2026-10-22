@@ -7,7 +7,7 @@
 - [x] T005 Añadir la migración de sesiones operativas, normalización única de nombres y RPC de inicio/cierre de turno sin modificar migraciones aplicadas.
 - [x] T006 Adaptar y probar las RPC transaccionales de apertura y cierre para derivar el actor de una sesión válida y no de `p_usuario_id`.
 - [x] T007 Adaptar los servicios de usuarios, carta, mesas y pedidos a RPC o lecturas autorizadas; eliminar las operaciones directas no permitidas desde componentes y servicios.
-- [ ] T008 Implementar la pantalla de acceso por PIN, almacenamiento seguro de sesión, cierre de turno y permisos de interfaz por rol.
+- [x] T008 Implementar la pantalla de acceso solo por PIN único, teclado numérico, almacenamiento seguro de sesión, cierre de turno y permisos de interfaz por rol.
 - [ ] T009 Implementar la pantalla de mesas con sus estados libre y ocupada.
 - [ ] T010 Implementar la pantalla de pedido agrupada por persona, incluyendo alta, edición y cancelación lógica de líneas.
 - [ ] T011 Implementar subtotales por persona y total de mesa excluyendo ítems cancelados.

@@ -15,7 +15,7 @@ begin
 
   select token_sesion
   into token_sesion_test
-  from public.iniciar_turno('actor DE prueba rpc', '1234');
+  from public.iniciar_turno('1234');
 
   insert into public.mesas (numero)
   values (99998)
