@@ -20,11 +20,11 @@ Como dueño, quiero conservar los pedidos cancelados y pagados para auditar vent
 
 ## Requisitos funcionales
 
-- RF-001: El sistema debe autenticar el cambio de turno con un PIN numérico de cuatro dígitos asociado a un usuario con rol `owner` o `waitress`.
-- RF-002: Solo el rol `owner` puede crear, modificar o desactivar categorías y platos de la carta.
+- RF-001: El sistema debe autenticar el cambio de turno con nombre normalizado y un PIN numérico de cuatro dígitos asociado a un usuario activo con rol `owner` o `waitress`, y emitir una sesión operativa temporal validable por el servidor.
+- RF-002: Solo el rol `owner` puede crear, modificar o desactivar categorías y platos de la carta. El borrado físico solo puede intentarse si no existen referencias y la integridad referencial lo permite.
 - RF-003: Solo el rol `owner` puede crear, modificar o eliminar registros de `mesas`.
 - RF-004: El rol `waitress` puede consultar la carta y operar comandas sobre mesas existentes, pero no puede crear, modificar ni eliminar registros de `mesas`.
-- RF-005: Al abrir una mesa libre, el sistema debe marcarla como `ocupada` y crear exactamente un pedido activo asociado a la mesera en una única operación atómica.
+- RF-005: Al abrir una mesa libre, el sistema debe marcarla como `ocupada` y crear exactamente un pedido activo asociado al usuario de la sesión operativa en una única operación atómica.
 - RF-006: La comanda debe agrupar sus líneas por `num_persona`, con numeración positiva iniciada en 1.
 - RF-007: El sistema debe permitir agregar y modificar líneas de pedido mientras el pedido esté activo.
 - RF-008: El sistema no debe borrar físicamente líneas de `detalle_pedido` por acciones operativas. Una corrección debe marcar el ítem como `cancelado` o establecer su cantidad en 0.
@@ -39,10 +39,11 @@ Como dueño, quiero conservar los pedidos cancelados y pagados para auditar vent
 - RNF-002: Las tablas deben aplicar claves primarias, claves foráneas, restricciones `CHECK`, valores por defecto e integridad referencial definidos en el modelo de datos.
 - RNF-003: La interfaz móvil debe reflejar los cambios persistidos sin requerir un proceso manual de sincronización.
 - RNF-004: El cliente móvil no debe contener credenciales con privilegios de servicio ni registrar PINes en texto plano.
+- RNF-005: Ninguna operación autorizada debe aceptar un identificador de usuario enviado por el cliente como prueba de identidad; debe derivar el actor de una sesión operativa válida en el servidor.
 
 ## Criterios de aceptación
 
-- Dado un PIN válido, cuando un usuario inicia turno, entonces la aplicación identifica su nombre y rol para aplicar los permisos de interfaz correspondientes.
+- Dado un nombre normalizado y un PIN válido de una cuenta activa, cuando un usuario inicia turno, entonces la aplicación recibe una sesión operativa temporal, identifica su nombre y rol y aplica los permisos de interfaz correspondientes sin exponer el PIN ni su hash.
 - Dado una mesa libre, cuando una mesera la abre, entonces queda ocupada y existe un único pedido activo vinculado a esa mesa.
 - Dado que dos dispositivos intentan abrir la misma mesa libre, cuando las operaciones se procesan concurrentemente, entonces solo una apertura tiene éxito.
 - Dado un pedido activo, cuando se agregan platos para personas distintas, entonces las líneas se visualizan y totalizan bajo la cabecera de cada persona.
@@ -50,6 +51,7 @@ Como dueño, quiero conservar los pedidos cancelados y pagados para auditar vent
 - Dado un pedido con ítems no cancelados, cuando se selecciona un método de pago permitido y se confirma el cobro, entonces el pedido queda pagado, conserva el método de pago y la mesa queda libre.
 - Dado una mesa previamente pagada, cuando se abre de nuevo, entonces se crea un `id_pedido` distinto sin modificar el pedido histórico.
 - Dado una mesera autenticada, cuando intenta alterar una categoría o plato, entonces la operación es rechazada.
+- Dado un cliente que envía el UUID de otro usuario junto con una sesión válida, cuando intenta una operación de pedido o administrativa, entonces el UUID no cambia el actor efectivo y la autorización se evalúa con la sesión.
 - Dado una mesera autenticada, cuando intenta crear, modificar o eliminar un registro de `mesas`, entonces la operación es rechazada.
 - Dado un dueño autenticado, cuando administra una mesa sin pedidos asociados, entonces puede crearla, modificarla o eliminarla.
 - Dado una mesa con pedidos históricos o activos, cuando incluso un dueño intenta eliminarla, entonces la operación es rechazada por integridad referencial.
@@ -62,6 +64,7 @@ Como dueño, quiero conservar los pedidos cancelados y pagados para auditar vent
 - Una línea cancelada o con cantidad 0 debe conservarse para auditoría, aun si deja el pedido sin ítems cobrables.
 - Una mesera puede ocupar o liberar una mesa mediante el flujo de pedido, pero no puede cambiar su identificador ni eliminar su registro.
 - Una categoría o plato con referencias históricas no debe eliminarse si la restricción referencial lo impide.
+- El cierre de turno, el vencimiento o la revocación de una sesión impide nuevas operaciones protegidas.
 
 ## Fuera de alcance
 

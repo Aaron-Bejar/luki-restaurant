@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import type { RolUsuario } from "@/types/supabase";
 
-import { requireData } from "./query";
+import { requireData, requireSuccess } from "./query";
 
 export type UsuarioOperativo = {
   activo: boolean;
@@ -10,31 +10,33 @@ export type UsuarioOperativo = {
   rol: RolUsuario;
 };
 
-const usuarioOperativoColumns = "id,nombre,rol,activo";
+export type SesionOperativa = {
+  expira_en: string;
+  nombre: string;
+  rol: RolUsuario;
+  token_sesion: string;
+  usuario_id: string;
+};
 
-export async function obtenerUsuarioOperativo(id: string): Promise<UsuarioOperativo> {
-  const { data, error } = await supabase
-    .from("usuario")
-    .select(usuarioOperativoColumns)
-    .eq("id", id)
-    .single();
+export async function iniciarTurno(nombre: string, pin: string): Promise<SesionOperativa> {
+  const { data, error } = await supabase.rpc("iniciar_turno", {
+    p_nombre: nombre,
+    p_pin: pin,
+  });
 
-  return requireData(data, error);
-}
+  const sesion = requireData(data, error)[0];
 
-export async function buscarUsuarioActivoPorNombre(
-  nombre: string,
-): Promise<UsuarioOperativo | null> {
-  const { data, error } = await supabase
-    .from("usuario")
-    .select(usuarioOperativoColumns)
-    .ilike("nombre", nombre.trim())
-    .eq("activo", true)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(error.message);
+  if (!sesion) {
+    throw new Error("El inicio de turno no devolvió una sesión.");
   }
 
-  return data;
+  return sesion;
+}
+
+export async function cerrarTurno(tokenSesion: string): Promise<void> {
+  const { error } = await supabase.rpc("cerrar_turno", {
+    p_token_sesion: tokenSesion,
+  });
+
+  requireSuccess(error);
 }

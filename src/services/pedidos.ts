@@ -5,15 +5,15 @@ import { requireData } from "./query";
 
 export type CrearDetallePedidoInput = Pick<
   DetallePedido,
-  "carta_id" | "cantidad" | "nombre_plato" | "num_persona" | "pedido_id" | "precio_unitario"
+  "carta_id" | "cantidad" | "num_persona" | "pedido_id"
 >;
 
 export type ActualizarDetallePedidoInput = Pick<DetallePedido, "cantidad" | "estado_item">;
 
-export async function abrirMesa(mesaId: number, usuarioId: string): Promise<Pedido> {
+export async function abrirMesa(mesaId: number, tokenSesion: string): Promise<Pedido> {
   const { data, error } = await supabase.rpc("abrir_mesa", {
     p_mesa_id: mesaId,
-    p_usuario_id: usuarioId,
+    p_token_sesion: tokenSesion,
   });
 
   return requireData(data, error);
@@ -21,70 +21,49 @@ export async function abrirMesa(mesaId: number, usuarioId: string): Promise<Pedi
 
 export async function cerrarPedido(
   pedidoId: number,
-  usuarioId: string,
+  tokenSesion: string,
   metodoPago: MetodoPago,
 ): Promise<Pedido> {
   const { data, error } = await supabase.rpc("cerrar_pedido", {
     p_pedido_id: pedidoId,
-    p_usuario_id: usuarioId,
+    p_token_sesion: tokenSesion,
     p_metodo_pago: metodoPago,
   });
 
   return requireData(data, error);
 }
 
-export async function obtenerPedidoActivoPorMesa(mesaId: number): Promise<Pedido | null> {
-  const { data, error } = await supabase
-    .from("pedido")
-    .select("*")
-    .eq("mesa_id", mesaId)
-    .eq("estado", "activo")
-    .maybeSingle();
+export async function obtenerPedidoActivoPorMesa(tokenSesion: string, mesaId: number): Promise<Pedido | null> {
+  const { data, error } = await supabase.rpc("obtener_pedido_activo_por_mesa", { p_token_sesion: tokenSesion, p_mesa_id: mesaId });
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data;
+  return data?.[0] ?? null;
 }
 
-export async function listarDetallePedido(pedidoId: number): Promise<DetallePedido[]> {
-  const { data, error } = await supabase
-    .from("detalle_pedido")
-    .select("*")
-    .eq("pedido_id", pedidoId)
-    .order("num_persona")
-    .order("id");
+export async function listarDetallePedido(tokenSesion: string, pedidoId: number): Promise<DetallePedido[]> {
+  const { data, error } = await supabase.rpc("listar_detalle_pedido", { p_token_sesion: tokenSesion, p_pedido_id: pedidoId });
 
   return requireData(data, error);
 }
 
-export async function agregarDetallePedido(
-  input: CrearDetallePedidoInput,
+export async function agregarDetallePedido(tokenSesion: string, input: CrearDetallePedidoInput,
 ): Promise<DetallePedido> {
-  const { data, error } = await supabase
-    .from("detalle_pedido")
-    .insert(input)
-    .select()
-    .single();
+  const { data, error } = await supabase.rpc("agregar_detalle_pedido", { p_token_sesion: tokenSesion, p_pedido_id: input.pedido_id, p_carta_id: input.carta_id, p_num_persona: input.num_persona, p_cantidad: input.cantidad });
 
   return requireData(data, error);
 }
 
-export async function actualizarDetallePedido(
-  id: number,
+export async function actualizarDetallePedido(tokenSesion: string, id: number,
   input: ActualizarDetallePedidoInput,
 ): Promise<DetallePedido> {
-  const { data, error } = await supabase
-    .from("detalle_pedido")
-    .update(input)
-    .eq("id", id)
-    .select()
-    .single();
+  const { data, error } = await supabase.rpc("actualizar_detalle_pedido", { p_token_sesion: tokenSesion, p_detalle_id: id, p_cantidad: input.cantidad, p_estado_item: input.estado_item });
 
   return requireData(data, error);
 }
 
-export async function cancelarDetallePedido(id: number): Promise<DetallePedido> {
-  return actualizarDetallePedido(id, { cantidad: 0, estado_item: "cancelado" as EstadoItem });
+export async function cancelarDetallePedido(tokenSesion: string, id: number): Promise<DetallePedido> {
+  return actualizarDetallePedido(tokenSesion, id, { cantidad: 0, estado_item: "cancelado" as EstadoItem });
 }

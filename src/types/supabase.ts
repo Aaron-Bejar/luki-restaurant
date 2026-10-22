@@ -106,6 +106,26 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["pedido"]["Insert"]>;
         Relationships: [];
       };
+      sesion_operativa: {
+        Row: {
+          creada_en: string;
+          expira_en: string;
+          id: string;
+          revocada_en: string | null;
+          token_hash: string;
+          usuario_id: string;
+        };
+        Insert: {
+          creada_en?: string;
+          expira_en: string;
+          id?: string;
+          revocada_en?: string | null;
+          token_hash: string;
+          usuario_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["sesion_operativa"]["Insert"]>;
+        Relationships: [];
+      };
       usuario: {
         Row: Usuario;
         Insert: {
@@ -124,21 +144,45 @@ export type Database = {
     Views: Record<string, never>;
     Functions: {
       abrir_mesa: {
-        Args: { p_mesa_id: number; p_usuario_id: string };
+        Args: { p_mesa_id: number; p_token_sesion: string };
         Returns: Pedido;
       };
       cerrar_pedido: {
         Args: {
           p_metodo_pago: MetodoPago;
           p_pedido_id: number;
-          p_usuario_id: string;
+          p_token_sesion: string;
         };
         Returns: Pedido;
       };
-      validar_actor_operativo: {
-        Args: { p_usuario_id: string };
+      cerrar_turno: {
+        Args: { p_token_sesion: string };
         Returns: undefined;
       };
+      iniciar_turno: {
+        Args: { p_nombre: string; p_pin: string };
+        Returns: {
+          expira_en: string;
+          nombre: string;
+          rol: RolUsuario;
+          token_sesion: string;
+          usuario_id: string;
+        }[];
+      };
+      obtener_pedido_activo_por_mesa: { Args: { p_mesa_id: number; p_token_sesion: string }; Returns: Pedido[] };
+      listar_detalle_pedido: { Args: { p_pedido_id: number; p_token_sesion: string }; Returns: DetallePedido[] };
+      agregar_detalle_pedido: { Args: { p_cantidad: number; p_carta_id: number; p_num_persona: number; p_pedido_id: number; p_token_sesion: string }; Returns: DetallePedido };
+      actualizar_detalle_pedido: { Args: { p_cantidad: number; p_detalle_id: number; p_estado_item: EstadoItem; p_token_sesion: string }; Returns: DetallePedido };
+      listar_mesas: { Args: { p_token_sesion: string }; Returns: Mesa[] };
+      obtener_mesa: { Args: { p_mesa_id: number; p_token_sesion: string }; Returns: Mesa };
+      crear_mesa: { Args: { p_numero: number; p_token_sesion: string }; Returns: Mesa };
+      actualizar_numero_mesa: { Args: { p_mesa_id: number; p_numero: number; p_token_sesion: string }; Returns: Mesa };
+      eliminar_mesa: { Args: { p_mesa_id: number; p_token_sesion: string }; Returns: undefined };
+      listar_carta_activa: { Args: { p_token_sesion: string }; Returns: Carta[] };
+      listar_categorias_activas: { Args: { p_token_sesion: string }; Returns: Categoria[] };
+      crear_plato: { Args: { p_categoria_id: number; p_nombre: string; p_precio: number; p_token_sesion: string }; Returns: Carta };
+      actualizar_plato: { Args: { p_activo?: boolean | null; p_categoria_id?: number | null; p_nombre?: string | null; p_plato_id: number; p_precio?: number | null; p_token_sesion: string }; Returns: Carta };
+      desactivar_plato: { Args: { p_plato_id: number; p_token_sesion: string }; Returns: undefined };
     };
     Enums: {
       estado_item: EstadoItem;

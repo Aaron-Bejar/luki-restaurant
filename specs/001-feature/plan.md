@@ -2,14 +2,15 @@
 
 ## Resumen técnico
 
-La aplicación móvil se organizará con Expo Router y módulos bajo `src/`. El cliente `@supabase/supabase-js` será el único acceso desde la aplicación a Supabase. PostgreSQL contendrá el esquema relacional, restricciones de integridad y operaciones RPC para las transiciones atómicas de apertura y cierre de mesa.
+La aplicación móvil se organizará con Expo Router y módulos bajo `src/`. El cliente `@supabase/supabase-js` será el único acceso desde la aplicación a Supabase. PostgreSQL contendrá el esquema relacional, restricciones de integridad, sesiones operativas y RPC para lecturas autorizadas y transiciones atómicas.
 
 ## Cambios previstos
 
 - Crear una migración SQL con las tablas `usuario`, `categoria`, `carta`, `mesas`, `pedido` y `detalle_pedido`, sus claves foráneas, valores por defecto y restricciones `CHECK`.
 - Crear índices para consultas de carta por categoría, pedido activo por mesa y detalles por pedido y persona.
-- Implementar una operación transaccional para abrir una mesa libre y crear su pedido activo.
-- Implementar una operación transaccional para cerrar un pedido activo, registrar el método de pago y liberar la mesa.
+- Añadir una migración de sesiones operativas, normalización única de nombres y RPC de inicio/cierre de turno; no modificar migraciones ya aplicadas.
+- Implementar una operación transaccional para abrir una mesa libre y crear su pedido activo, derivando el actor de la sesión validada por el servidor.
+- Implementar una operación transaccional para cerrar un pedido activo, registrar el método de pago y liberar la mesa, derivando el actor de la sesión validada por el servidor.
 - Configurar las pantallas de acceso por PIN, mesas, detalle de pedido, pago y administración de carta y mesas.
 - Separar el acceso a datos en servicios de usuarios, carta, mesas y pedidos.
 - Aplicar controles de acceso para limitar la administración de carta, categorías y mesas al rol `owner`.
@@ -20,14 +21,15 @@ La aplicación usa las siguientes entidades persistidas:
 
 | Entidad | Propósito | Integridad principal |
 | --- | --- | --- |
-| `usuario` | Identidad operativa y rol | PIN numérico de cuatro dígitos; rol `owner` o `waitress` |
+| `usuario` | Identidad operativa y rol | Nombre único por `lower(btrim(nombre))`; PIN numérico de cuatro dígitos; rol `owner` o `waitress` |
+| `sesion_operativa` | Prueba temporal de identidad | Solo persiste el hash del token, usuario, vencimiento y revocación |
 | `categoria` | Agrupación de platos | No puede eliminarse si la carta la referencia |
 | `carta` | Plato y precio vigente | Precio no negativo; categoría referenciada |
 | `mesas` | Estructura física y estado de cada mesa | Solo `owner` la administra; pedidos asociados bloquean su eliminación |
 | `pedido` | Cabecera histórica de consumo | Estado `activo` o `pagado`; método de pago validado |
 | `detalle_pedido` | Líneas de comanda por persona | Cantidad no negativa; sin borrado operativo |
 
-Las operaciones `abrir_mesa` y `cerrar_pedido` se expondrán como funciones PostgreSQL invocadas mediante RPC. Deben validar el estado actual antes de realizar cambios y fallar sin efectos parciales ante una condición inválida.
+Las operaciones `abrir_mesa` y `cerrar_pedido` se expondrán como funciones PostgreSQL invocadas mediante RPC. Reciben una sesión operativa, derivan el actor en el servidor, validan el estado actual y fallan sin efectos parciales ante una condición inválida.
 
 ## Decisiones técnicas
 
@@ -38,7 +40,8 @@ Las operaciones `abrir_mesa` y `cerrar_pedido` se expondrán como funciones Post
 | Operaciones de apertura y cierre mediante RPC | Garantiza consistencia cuando varios dispositivos actúan simultáneamente. |
 | Cancelación lógica o cantidad 0 | Conserva la auditoría de comandas y evita borrado físico operativo. |
 | `ON DELETE RESTRICT` en datos maestros | Evita destruir referencias históricas de carta, usuarios y mesas. |
-| IDs operativos `integer identity`; `usuario.id` UUID | PostgreSQL asigna los IDs de entidades centralizadas y el UUID del usuario queda disponible para enlazar con Auth cuando se defina el mecanismo de inicio de sesión. |
+| Sesiones operativas propias | Permite validar el actor en PostgreSQL sin depender de `auth.users` ni confiar en UUID enviados por el cliente. |
+| IDs operativos `integer identity`; `usuario.id` UUID | PostgreSQL asigna los IDs de entidades centralizadas; el UUID identifica al usuario dentro de las sesiones operativas. |
 | Administración de mesas solo para `owner` | Las meseras no pueden alterar la estructura de mesas ni afectar pedidos al intentar eliminar una mesa. |
 | Clave anónima pública solo en el cliente | Impide exponer credenciales de servicio en los dispositivos. |
 | Semilla de demostración sin usuarios | Las mesas y la carta de referencia son reproducibles; los usuarios y hashes bcrypt se cargan localmente fuera de Git. |
@@ -52,3 +55,4 @@ Las operaciones `abrir_mesa` y `cerrar_pedido` se expondrán como funciones Post
 - Verificar subtotales por persona y total de mesa con ítems entregados, en cocina y cancelados.
 - Verificar que `owner` administre carta, categorías y mesas, y que `waitress` no pueda crear, modificar ni eliminar registros de mesas.
 - Verificar que no se pueda eliminar una mesa con pedidos activos o históricos.
+- Verificar inicio, vencimiento, revocación e impersonación de sesión; una RPC no debe aceptar un UUID del cliente como actor.

@@ -5,18 +5,17 @@ begin;
 
 do $$
 declare
-  actor_id_test uuid;
+  token_sesion_test text;
   mesa_id_test integer;
   pedido_id_test integer;
   pedido_cerrado public.pedido%rowtype;
 begin
   insert into public.usuario (nombre, pin_hash, rol)
-  values (
-    'Actor de prueba RPC',
-    '$2b$12$LQv3c1yqBWf4fxLqVY4uJOPoE1ZrzqBK76Z4mfACOcElKjxwfVGRK',
-    'waitress'
-  )
-  returning id into actor_id_test;
+  values ('Actor de prueba RPC', extensions.crypt('1234', extensions.gen_salt('bf', 10)), 'waitress');
+
+  select token_sesion
+  into token_sesion_test
+  from public.iniciar_turno('actor DE prueba rpc', '1234');
 
   insert into public.mesas (numero)
   values (99998)
@@ -24,7 +23,7 @@ begin
 
   select id
   into pedido_id_test
-  from public.abrir_mesa(mesa_id_test, actor_id_test);
+  from public.abrir_mesa(mesa_id_test, token_sesion_test);
 
   if (select estado from public.mesas where id = mesa_id_test) <> 'ocupada' then
     raise exception 'La apertura no ocupó la mesa.';
@@ -35,7 +34,7 @@ begin
   end if;
 
   begin
-    perform public.abrir_mesa(mesa_id_test, actor_id_test);
+    perform public.abrir_mesa(mesa_id_test, token_sesion_test);
     raise exception 'Se abrió dos veces la misma mesa.';
   exception
     when sqlstate '55000' then
@@ -50,7 +49,7 @@ begin
 
   select *
   into pedido_cerrado
-  from public.cerrar_pedido(pedido_id_test, actor_id_test, 'tarjeta');
+  from public.cerrar_pedido(pedido_id_test, token_sesion_test, 'tarjeta');
 
   if pedido_cerrado.estado <> 'pagado'
     or pedido_cerrado.metodo_pago <> 'tarjeta'
@@ -60,7 +59,7 @@ begin
   end if;
 
   begin
-    perform public.cerrar_pedido(pedido_id_test, actor_id_test, 'efectivo');
+    perform public.cerrar_pedido(pedido_id_test, token_sesion_test, 'efectivo');
     raise exception 'Se volvió a cerrar un pedido pagado.';
   exception
     when sqlstate '55000' then
