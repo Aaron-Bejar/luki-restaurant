@@ -6,7 +6,7 @@ Aplicación móvil para siete dispositivos que gestionan mesas y comandas de un 
 
 ## Componentes
 
-- Aplicación Expo: presenta las pantallas de acceso, mesas, comanda por persona, pago y administración exclusiva de carta, categorías, mesas y meseras para el dueño.
+- Aplicación Expo: presenta las pantallas de acceso, mesas, comanda por persona, pago, Carta y administración de meseras.
 - Expo Router: organiza las rutas y separa los flujos operativos de los administrativos.
 - Servicios de dominio: encapsulan RPC de lectura y escritura autorizadas de usuarios, carta, mesas y pedidos.
 - Supabase JavaScript Client: conexión única del cliente móvil con Supabase.
@@ -20,6 +20,13 @@ Aplicación móvil para siete dispositivos que gestionan mesas y comandas de un 
 4. La aplicación calcula subtotales por persona y el total de líneas no canceladas.
 5. La mesera confirma el método de pago y una operación atómica marca el pedido como pagado y libera la mesa.
 6. El pedido pagado y sus líneas se mantienen como histórico; una nueva ocupación crea otro pedido.
+
+## Límites de funcionalidades
+
+- `001-gestion-mesas-pedidos`: mesas, pedidos, detalle por persona, totales, pagos e histórico.
+- `002-gestion-meseras`: altas, activación, desactivación y restablecimiento de PIN de cuentas `waitress`.
+- `003-navegacion-y-pantallas`: rutas, tabs, presentación y visibilidad de pantallas por rol.
+- `004-gestion-carta`: categorías, productos, precios, disponibilidad y permisos de Carta.
 
 ## Integraciones externas
 

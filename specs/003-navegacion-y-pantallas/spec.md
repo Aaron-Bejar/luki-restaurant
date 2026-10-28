@@ -2,7 +2,7 @@
 
 ## Contexto y objetivo
 
-La aplicación necesita una estructura de navegación clara para que `owner` y `waitress` operen mesas y pedidos. Solo el `owner` puede administra la carta y el personal.
+La aplicación necesita una estructura de navegación clara para que `owner` y `waitress` operen mesas y pedidos, consulten la carta y accedan a su perfil. Esta especificación define navegación y presentación; las reglas de Carta viven en `004-gestion-carta` y las de personal en `002-gestion-meseras`.
 
 ## Estructura de navegación
 
@@ -17,15 +17,15 @@ Después de iniciar turno, la aplicación muestra un menú inferior con:
 
 ### Mesas
 
-Debe mostrar el total de mesas, filtros de disponibles y ocupadas, búsqueda por número y una cuadrícula de dos columnas. Cada tarjeta muestra número y estado. Solo `owner` puede añadir automáticamente la siguiente mesa o solicitar su eliminación.
+Debe mostrar el total de mesas, filtros de disponibles y ocupadas, búsqueda por número y una cuadrícula de dos columnas. Cada tarjeta muestra número y estado. Solo `owner` puede añadir automáticamente la siguiente mesa o eliminar una mesa.
 
-Al seleccionar una mesa libre se abre un pedido mediante la operación atómica existente. Una mesa ocupada abre su pedido activo.
+Al seleccionar una mesa se mostrara la lista de pedidos tantos de pagados como el pendiente si esta en este momento y el boton para agregar un nuevo pedido
 
 ### Pedidos de una mesa
 
-Debe mostrar una lista de pedidos históricos y activos sin ocultar los pagados. Cada pedido muestra ticket, cantidad de personas, total y estado. Los pedidos pagados se muestran atenuados.
+Debe mostrar una lista de pedidos históricos y pendientes sin ocultar los pagados solo del dia. Cada pedido muestra ticket, cantidad de personas, total y estado. Los pedidos pagados se muestran atenuados.
 
-No se permite crear otro pedido si existe uno activo. El cierre debe usar el flujo transaccional de pago definido en `001-feature`.
+No se permite crear otro pedido si existe uno pendiente. El cierre debe usar el flujo transaccional de pago definido en `001-gestion-mesas-pedidos`.
 
 ### Detalle del pedido
 
@@ -33,7 +33,11 @@ Debe agrupar las líneas por persona, mostrar subtotal por persona y total gener
 
 ### Carta
 
-Debe listar productos agrupados por categorías. Las meseras solo leen. El dueño puede crear y editar categorías y productos, cambiar precio y activar o desactivar disponibilidad.
+Debe mostrar los botones `+ Categoría` y `+ Producto` para el `owner`, las etiquetas de categorías para filtrar y debajo la lista de productos de la categoría seleccionada. Las meseras solo leen las etiquetas y productos activos. La gestión completa y la subpantalla de Categorías se especifican en `004-gestion-carta`.
+
+### Subpantalla Categorías
+
+Debe ser accesible únicamente para el `owner` desde Carta. Debe mostrar todas las categorías creadas, activas e inactivas, con acciones para modificar nombre, cambiar estado y eliminar. La eliminación solo procede si no existen productos vinculados.
 
 ### Personal
 

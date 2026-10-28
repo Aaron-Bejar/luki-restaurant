@@ -75,4 +75,4 @@ Las decisiones comunes del proyecto se mantienen en `specs/_global/`. Antes de r
 
 ## Estado del Proyecto
 
-El repositorio contiene actualmente la especificación y el plan de la funcionalidad de pedidos por persona. La inicialización de Expo, las migraciones de Supabase y la implementación de la aplicación están pendientes y se ejecutarán conforme a `specs/001-feature/tasks.md`.
+El repositorio contiene especificaciones separadas para mesas, pedidos y detalle por persona (`001-gestion-mesas-pedidos`), gestión de meseras (`002-gestion-meseras`), navegación (`003-navegacion-y-pantallas`) y gestión de carta (`004-gestion-carta`). La implementación se ejecutará conforme a las tareas de cada funcionalidad.
