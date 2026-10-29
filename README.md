@@ -1,6 +1,6 @@
 # Luki
 
-Aplicación móvil para gestionar pedidos de restaurante por persona. Está diseñada para siete dispositivos móviles que comparten una base de datos PostgreSQL centralizada en Supabase, sin necesidad de computadoras o tablets en cocina.
+Aplicación móvil para gestionar pedidos de restaurante por persona. Está diseñada para dispositivos móviles que comparten una base de datos PostgreSQL centralizada en Supabase, sin necesidad de computadoras o tablets en cocina.
 
 ## Funcionalidades
 
@@ -17,8 +17,8 @@ Aplicación móvil para gestionar pedidos de restaurante por persona. Está dise
 
 | Rol | Permisos |
 | --- | --- |
-| `owner` | Administra mesas, categorías y carta; consulta y opera pedidos. |
-| `waitress` | Consulta la carta y opera pedidos sobre mesas existentes. No puede crear, modificar ni eliminar registros de mesas, categorías o carta. |
+| `owner` | Administra mesas, categorías, carta y personal; puede ejercer funcionalidades de waitress. |
+| `waitress` | Consulta la carta y opera pedidos sobre mesas existentes. No puede crear, modificar ni eliminar registros de mesas, categorías, carta y personal. |
 
 Las meseras pueden ocupar y liberar mesas como parte del flujo de pedido. Esto solo actualiza el estado operativo de una mesa existente; no permite modificar ni eliminar su registro.
 
