@@ -33,11 +33,11 @@ Debe agrupar las líneas por persona, mostrar subtotal por persona y total gener
 
 ### Carta
 
-Debe mostrar los botones `+ Categoría` y `+ Producto` para el `owner`, las etiquetas de categorías para filtrar y debajo la lista de productos de la categoría seleccionada. Las meseras solo leen las etiquetas y productos activos. La gestión completa y la subpantalla de Categorías se especifican en `004-gestion-carta`.
+Debe mostrar `+ Producto` y el acceso a `Gestionar categorías` para el `owner`, las etiquetas de categorías para filtrar y debajo la lista de productos de la categoría seleccionada. Owner y meseras ven productos disponibles y no disponibles; estos últimos se distinguen y no pueden agregarse a un pedido. Las meseras no ven acciones administrativas. La gestión completa y la subpantalla de Categorías se especifican en `004-gestion-carta`.
 
 ### Subpantalla Categorías
 
-Debe ser accesible únicamente para el `owner` desde Carta. Debe mostrar todas las categorías creadas, activas e inactivas, con acciones para modificar nombre, cambiar estado y eliminar. La eliminación solo procede si no existen productos vinculados.
+Debe ser accesible únicamente para el `owner` desde Carta. Debe permitir crear, modificar nombre y confirmar la eliminación de categorías; esta elimina sus platos asociados y conserva snapshots de detalles históricos.
 
 ### Personal
 

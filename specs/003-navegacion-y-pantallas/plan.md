@@ -13,9 +13,9 @@ app/
     │   ├── _layout.tsx
     │   ├── mesas/index.tsx
     │   ├── carta.tsx
-    │   ├── categorias.tsx
     │   ├── personal.tsx
     │   └── perfil.tsx
+    ├── categorias.tsx
     ├── mesas/[mesaId]/index.tsx
     └── pedidos/[pedidoId].tsx
 ```
@@ -102,8 +102,8 @@ Las líneas canceladas permanecen visibles como historial, pero no participan en
 
 ```text
 +--------------------------------------------------+
-| Menú                         [ + Categoría ]      |
-|                              [ + Producto ]       |
+| Menú                         [ + Producto ]       |
+|                              [ Gestionar categorías ]|
 | Carta                                            |
 |                                                  |
 | [ Todas ] [ Entradas ] [ Fondos ] [ Bebidas ]    |
@@ -119,7 +119,7 @@ Las líneas canceladas permanecen visibles como historial, pero no participan en
 +--------------------------------------------------+
 ```
 
-Los botones administrativos y las acciones de edición solo aparecen para `owner`. `waitress` ve las categorías y productos activos sin acciones de modificación.
+Los botones administrativos y las acciones de edición solo aparecen para `owner`. `waitress` ve las categorías y todos los productos, incluidos los no disponibles, sin acciones de modificación.
 
 ### Categorías
 
@@ -142,7 +142,7 @@ Los botones administrativos y las acciones de edición solo aparecen para `owner
 +--------------------------------------------------+
 ```
 
-La pantalla es exclusiva de `owner` y muestra categorías activas e inactivas. La eliminación se rechaza si existe cualquier producto vinculado, incluso si está inactivo.
+La pantalla es exclusiva de `owner`: permite crear, renombrar y eliminar categorías tras confirmación. La eliminación borra sus productos asociados; los detalles históricos mantienen sus snapshots según `004-gestion-carta`.
 
 ### Meseras / Personal
 

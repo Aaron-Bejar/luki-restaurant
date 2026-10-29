@@ -5,17 +5,33 @@ import { requireData, requireSuccess } from "./query";
 
 export type CrearPlatoInput = Pick<Carta, "categoria_id" | "nombre" | "precio">;
 export type ActualizarPlatoInput = Partial<CrearPlatoInput & Pick<Carta, "activo">>;
+export type CrearCategoriaInput = Pick<Categoria, "nombre">;
 
-export async function listarCartaActiva(tokenSesion: string): Promise<Carta[]> {
-  const { data, error } = await supabase.rpc("listar_carta_activa", { p_token_sesion: tokenSesion });
+export async function listarCarta(tokenSesion: string): Promise<Carta[]> {
+  const { data, error } = await supabase.rpc("listar_carta", { p_token_sesion: tokenSesion });
 
   return requireData(data, error);
 }
 
-export async function listarCategoriasActivas(tokenSesion: string): Promise<Categoria[]> {
-  const { data, error } = await supabase.rpc("listar_categorias_activas", { p_token_sesion: tokenSesion });
+export async function listarCategorias(tokenSesion: string): Promise<Categoria[]> {
+  const { data, error } = await supabase.rpc("listar_categorias", { p_token_sesion: tokenSesion });
 
   return requireData(data, error);
+}
+
+export async function crearCategoria(tokenSesion: string, input: CrearCategoriaInput): Promise<Categoria> {
+  const { data, error } = await supabase.rpc("crear_categoria", { p_nombre: input.nombre, p_token_sesion: tokenSesion });
+  return requireData(data, error);
+}
+
+export async function actualizarCategoria(tokenSesion: string, id: number, nombre: string): Promise<Categoria> {
+  const { data, error } = await supabase.rpc("actualizar_categoria", { p_categoria_id: id, p_nombre: nombre, p_token_sesion: tokenSesion });
+  return requireData(data, error);
+}
+
+export async function eliminarCategoria(tokenSesion: string, id: number): Promise<void> {
+  const { error } = await supabase.rpc("eliminar_categoria", { p_categoria_id: id, p_token_sesion: tokenSesion });
+  requireSuccess(error);
 }
 
 export async function crearPlato(tokenSesion: string, input: CrearPlatoInput): Promise<Carta> {
@@ -31,7 +47,12 @@ export async function actualizarPlato(tokenSesion: string, id: number, input: Ac
 }
 
 export async function desactivarPlato(tokenSesion: string, id: number): Promise<void> {
-  const { error } = await supabase.rpc("desactivar_plato", { p_token_sesion: tokenSesion, p_plato_id: id });
+  const { error } = await supabase.rpc("establecer_disponibilidad_plato", { p_token_sesion: tokenSesion, p_plato_id: id, p_activo: false });
 
   requireSuccess(error);
+}
+
+export async function establecerDisponibilidadPlato(tokenSesion: string, id: number, activo: boolean): Promise<Carta> {
+  const { data, error } = await supabase.rpc("establecer_disponibilidad_plato", { p_token_sesion: tokenSesion, p_plato_id: id, p_activo: activo });
+  return requireData(data, error);
 }

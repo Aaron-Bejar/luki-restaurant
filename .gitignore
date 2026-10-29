@@ -38,6 +38,7 @@ yarn-error.*
 
 # Local setup reference
 CONFIGURACION_NATIVEWIND_TAILWIND.md
+guia-git-flujo-local.md
 
 # typescript
 *.tsbuildinfo

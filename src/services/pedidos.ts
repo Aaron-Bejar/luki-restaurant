@@ -3,10 +3,9 @@ import type { DetallePedido, EstadoItem, MetodoPago, Pedido } from "@/types/supa
 
 import { requireData } from "./query";
 
-export type CrearDetallePedidoInput = Pick<
-  DetallePedido,
-  "carta_id" | "cantidad" | "num_persona" | "pedido_id"
->;
+export type CrearDetallePedidoInput = Pick<DetallePedido, "cantidad" | "num_persona" | "pedido_id"> & {
+  carta_id: number;
+};
 
 export type ActualizarDetallePedidoInput = Pick<DetallePedido, "cantidad" | "estado_item">;
 

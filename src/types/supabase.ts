@@ -47,7 +47,7 @@ export type Database = {
       detalle_pedido: {
         Row: {
           cantidad: number;
-          carta_id: number;
+          carta_id: number | null;
           created_at: string;
           estado_item: EstadoItem;
           id: number;
@@ -59,7 +59,7 @@ export type Database = {
         };
         Insert: {
           cantidad?: number;
-          carta_id: number;
+          carta_id?: number | null;
           created_at?: string;
           estado_item?: EstadoItem;
           id?: number;
@@ -180,8 +180,14 @@ export type Database = {
       eliminar_mesa: { Args: { p_mesa_id: number; p_token_sesion: string }; Returns: undefined };
       listar_carta_activa: { Args: { p_token_sesion: string }; Returns: Carta[] };
       listar_categorias_activas: { Args: { p_token_sesion: string }; Returns: Categoria[] };
+      listar_categorias: { Args: { p_token_sesion: string }; Returns: Categoria[] };
+      listar_carta: { Args: { p_token_sesion: string }; Returns: Carta[] };
+      crear_categoria: { Args: { p_nombre: string; p_token_sesion: string }; Returns: Categoria };
+      actualizar_categoria: { Args: { p_categoria_id: number; p_nombre: string; p_token_sesion: string }; Returns: Categoria };
+      eliminar_categoria: { Args: { p_categoria_id: number; p_token_sesion: string }; Returns: undefined };
       crear_plato: { Args: { p_categoria_id: number; p_nombre: string; p_precio: number; p_token_sesion: string }; Returns: Carta };
       actualizar_plato: { Args: { p_activo?: boolean | null; p_categoria_id?: number | null; p_nombre?: string | null; p_plato_id: number; p_precio?: number | null; p_token_sesion: string }; Returns: Carta };
+      establecer_disponibilidad_plato: { Args: { p_activo: boolean; p_plato_id: number; p_token_sesion: string }; Returns: Carta };
       desactivar_plato: { Args: { p_plato_id: number; p_token_sesion: string }; Returns: undefined };
     };
     Enums: {
