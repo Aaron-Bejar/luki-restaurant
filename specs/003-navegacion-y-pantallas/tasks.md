@@ -10,5 +10,5 @@
 - [x] T008 Implementar la pantalla Carta según `004-gestion-carta`, con creación de productos, acceso a Categorías, etiquetas y lista filtrada.
 - [x] T009 Implementar la subpantalla Categorías, exclusiva para owner, con renombrado y eliminación confirmada.
 - [ ] T010 Implementar Personal con alta, activación, desactivación y restablecimiento de PIN mediante RPC.
-- [ ] T011 Implementar Perfil y cierre de turno con limpieza del token seguro.
+- [x] T011 Implementar Perfil y cierre de turno con limpieza del token seguro.
 - [ ] T012 Añadir pruebas de navegación, permisos por rol y estados de interfaz.

@@ -7,3 +7,4 @@
 - [ ] T005 Actualizar el inicio de sesión por PIN para rechazar cuentas inactivas.
 - [ ] T006 Añadir pruebas de permisos, token de sesión, validación de PIN, nombre normalizado, baja lógica, conservación de historial e invalidación de PIN anterior.
 - [ ] T007 Verificar todos los criterios de aceptación en un proyecto Supabase de prueba y actualizar la documentación operativa.
+- [ ] T008 Gestionar el rechazo de una sesión operativa inválida del turno actual: limpiar el estado local, volver al PIN y mostrar un mensaje; probar la desactivación durante el turno, errores de conexión o permisos y respuestas tardías.

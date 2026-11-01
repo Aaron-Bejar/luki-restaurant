@@ -28,6 +28,16 @@ Las tablas operativas no conceden escrituras directas al cliente móvil.
   interfaz autenticada sin una RPC de validación que devuelva esos metadatos.
 - `cerrar_turno` revoca la sesión; las sesiones vencidas o revocadas no
   autorizan lecturas ni cambios.
+- Comportamiento pendiente de implementación: al recibir de una RPC protegida
+  un rechazo inequívoco de la sesión del turno actual, la aplicación limpiará
+  el token y los metadatos locales, volverá al PIN y mostrará un mensaje. No
+  confundirá errores de conexión ni permisos con una sesión inválida, y no
+  aplicará respuestas tardías a un turno nuevo. La aceptación y las tareas de
+  desactivación durante un turno se detallan en `002-gestion-meseras`.
+- La aplicación solo elimina su token seguro tras confirmar la revocación
+  remota solicitada por el usuario. Si esa solicitud falla, conserva la sesión
+  y comunica un error reintentable; cuando la sesión vence, limpia el estado
+  local porque el servidor ya no autoriza el token.
 - Las RPC expuestas a `anon` solo aceptan el token de sesión cuando la acción
   requiere un actor. El inicio de turno acepta únicamente un PIN; todas usan
   validación del servidor y fallan sin efectos parciales.

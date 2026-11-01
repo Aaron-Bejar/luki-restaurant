@@ -1,9 +1,29 @@
 import { type Href, useRouter } from "expo-router";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
-import { type PinTurno, type SesionDeInterfaz, sesionExpirada, validarPinTurno } from "@/auth/session";
-import { eliminarTokenSesion, guardarTokenSesion, leerTokenSesion } from "@/lib/secure-session";
-import { cerrarTurno as cerrarTurnoRemoto, iniciarTurno } from "@/services/usuarios";
+import { cerrarTurnoSeguro } from "@/auth/cierre-turno";
+import {
+  type PinTurno,
+  type SesionDeInterfaz,
+  sesionExpirada,
+  validarPinTurno,
+} from "@/auth/session";
+import {
+  eliminarTokenSesion,
+  guardarTokenSesion,
+  leerTokenSesion,
+} from "@/lib/secure-session";
+import {
+  cerrarTurno as cerrarTurnoRemoto,
+  iniciarTurno,
+} from "@/services/usuarios";
 
 type SesionContexto = {
   cargandoSesion: boolean;
@@ -42,34 +62,53 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     await guardarTokenSesion(resultado.token_sesion);
 
     setTokenSesion(resultado.token_sesion);
-    setSesion({ expiraEn: resultado.expira_en, nombre: resultado.nombre, rol: resultado.rol });
+    setSesion({
+      expiraEn: resultado.expira_en,
+      nombre: resultado.nombre,
+      rol: resultado.rol,
+    });
   }, []);
 
+  const limpiarSesionLocal = useCallback(async () => {
+    await eliminarTokenSesion();
+    setTokenSesion(null);
+    setSesion(null);
+    router.replace("/(auth)" as Href);
+  }, [router]);
+
   const cerrar = useCallback(async () => {
-    try {
-      if (tokenSesion) await cerrarTurnoRemoto(tokenSesion);
-    } finally {
-      await eliminarTokenSesion();
-      setTokenSesion(null);
-      setSesion(null);
-      router.replace("/(auth)" as Href);
-    }
+    await cerrarTurnoSeguro(tokenSesion, {
+      eliminarToken: eliminarTokenSesion,
+      revocarTurno: cerrarTurnoRemoto,
+    });
+    setTokenSesion(null);
+    setSesion(null);
+    router.replace("/(auth)" as Href);
   }, [router, tokenSesion]);
 
   useEffect(() => {
-    if (sesion && sesionExpirada(sesion.expiraEn)) void cerrar();
-  }, [cerrar, sesion]);
+    if (sesion && sesionExpirada(sesion.expiraEn)) void limpiarSesionLocal();
+  }, [limpiarSesionLocal, sesion]);
 
   const value = useMemo(
-    () => ({ cargandoSesion, cerrarTurno: cerrar, iniciarTurno: iniciar, sesion, tokenSesion }),
+    () => ({
+      cargandoSesion,
+      cerrarTurno: cerrar,
+      iniciarTurno: iniciar,
+      sesion,
+      tokenSesion,
+    }),
     [cargandoSesion, cerrar, iniciar, sesion, tokenSesion],
   );
 
-  return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
+  return (
+    <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
+  );
 }
 
 export function useSesion(): SesionContexto {
   const contexto = useContext(SessionContext);
-  if (!contexto) throw new Error("useSesion debe usarse dentro de SessionProvider.");
+  if (!contexto)
+    throw new Error("useSesion debe usarse dentro de SessionProvider.");
   return contexto;
 }

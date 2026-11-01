@@ -23,6 +23,7 @@ Como dueño, quiero restablecer el PIN de una mesera para recuperar el acceso de
 - RF-007: Una mesera no puede crear, activar, desactivar ni restablecer PINes de usuarios.
 - RF-008: Un `owner` no puede administrar mediante este flujo una cuenta `owner`; la gestión de dueños queda fuera de alcance.
 - RF-009: Las operaciones de gestión se ejecutan mediante RPC PostgreSQL; la aplicación móvil no inserta ni actualiza directamente `public.usuario`.
+- RF-010: Si se desactiva una mesera con un turno abierto, el servidor debe rechazar sus siguientes solicitudes protegidas. Al recibir un rechazo inequívoco de sesión inválida para el turno actual, la aplicación debe limpiar el token y la sesión local, regresar al PIN y mostrar un mensaje claro. Un fallo de conexión o un rechazo de permisos no debe tratarse como sesión inválida.
 
 ## Requisitos no funcionales
 
@@ -34,6 +35,8 @@ Como dueño, quiero restablecer el PIN de una mesera para recuperar el acceso de
 
 - Dado un owner activo validado, cuando crea una mesera con nombre único y PIN válido, entonces existe una nueva `waitress` activa con hash bcrypt y sin PIN expuesto.
 - Dado un owner activo validado, cuando desactiva una mesera, entonces su registro y pedidos históricos se conservan y su inicio de turno posterior es rechazado.
+- Dado un turno abierto de una mesera, cuando el owner la desactiva y ella realiza una solicitud protegida, entonces el servidor la rechaza y la aplicación limpia su sesión local, vuelve al PIN y muestra que su sesión ya no está disponible.
+- Dado un turno válido, cuando una solicitud falla por conexión o permisos, entonces la aplicación no cierra la sesión por ese motivo.
 - Dado un owner activo validado, cuando activa una mesera, entonces recupera la posibilidad de iniciar turno con su PIN vigente.
 - Dado un owner activo validado, cuando restablece el PIN de una mesera, entonces el PIN anterior deja de validar y el nuevo valida; el estado de la cuenta no cambia.
 - Dado una mesera o un owner inactivo, cuando intenta cualquiera de las operaciones administrativas, entonces la operación es rechazada sin modificar datos.
