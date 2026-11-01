@@ -1,5 +1,7 @@
 import type { RolUsuario } from "@/types/supabase";
 
+export const ALTURA_BARRA_TABS = 75;
+
 export type PestanaPrincipal = "mesas" | "carta" | "personal" | "perfil";
 
 const pestanasPorRol: Record<RolUsuario, readonly PestanaPrincipal[]> = {

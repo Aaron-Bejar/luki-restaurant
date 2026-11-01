@@ -10,18 +10,21 @@ operación de mesas y pedidos de `001-gestion-mesas-pedidos`.
 ## Requisitos funcionales
 
 - RF-001: Solo un `owner` activo con sesión válida puede crear, cambiar nombre o eliminar categorías.
-- RF-002: Las categorías siempre permanecen activas; la interfaz y las RPC no exponen cambio de estado.
+- RF-002: Las categorías admiten baja lógica y restauración exclusiva de owner; sus platos se ocultan sin alterar su estado individual.
 - RF-003: Solo un `owner` activo con sesión válida puede crear, editar o cambiar disponibilidad de platos.
 - RF-004: Una categoría tiene nombre no vacío y único tras normalizar espacios y mayúsculas.
 - RF-005: Un plato tiene nombre no vacío, precio no negativo, categoría existente y disponibilidad.
 - RF-006: Owner y waitress consultan categorías y todos los platos mediante lectura autorizada.
 - RF-007: Un plato no disponible se muestra, pero no puede agregarse a pedidos nuevos.
-- RF-008: Al confirmar la eliminación de una categoría, se eliminan sus platos asociados. Los detalles históricos preservan nombre y precio y su `carta_id` pasa a nulo.
+- RF-008: La eliminación lógica de una categoría o plato conserva las referencias y snapshots históricos; los platos eliminados no aparecen en Carta.
 - RF-009: Seleccionar un plato disponible copia nombre y precio al detalle según `001-gestion-mesas-pedidos`.
 - RF-010: Toda escritura administrativa se ejecuta por RPC; los componentes no escriben directamente en Supabase.
 - RF-011: Carta muestra a owner `+ Producto`, el acceso a `Gestionar categorías`, etiquetas de categorías y acciones de edición/disponibilidad.
 - RF-012: Carta muestra a waitress etiquetas y platos, sin controles administrativos.
 - RF-013: Categorías es una subpantalla exclusiva de owner para crear, renombrar y eliminar tras confirmación.
+- RF-014: Owner puede eliminar y restaurar platos; la restauración requiere una categoría no eliminada y conserva la disponibilidad.
+- RF-015: Solo platos disponibles, no eliminados y de categorías no eliminadas pueden añadirse a pedidos.
+- RF-016: Los nombres normalizados permanecen reservados aun cuando el registro esté eliminado.
 
 ## Requisitos no funcionales
 
@@ -37,9 +40,13 @@ operación de mesas y pedidos de `001-gestion-mesas-pedidos`.
 - Dado una waitress autenticada, cuando consulta Carta, entonces recibe platos disponibles y no disponibles, sin acciones administrativas.
 - Dado un plato no disponible, cuando se intenta agregar a un pedido, entonces el servidor rechaza la operación sin crear detalle.
 - Dado una waitress o un token vencido, revocado o inventado, cuando intenta administrar Carta, entonces la operación se rechaza sin efectos parciales.
-- Dado un owner, cuando confirma eliminar una categoría, entonces sus platos se eliminan y los detalles históricos conservan nombre y precio con `carta_id` nulo.
+- Dado un owner, cuando elimina una categoría, sus platos se ocultan y los detalles históricos conservan referencia, nombre y precio.
+- Dado una categoría restaurada, reaparecen sus platos no eliminados individualmente con su disponibilidad previa.
+- Dado un plato eliminado cuya categoría está eliminada, se rechaza su restauración hasta restaurar la categoría.
 - Dado un usuario de Carta, cuando selecciona `Todas` o una categoría, entonces ve únicamente los platos del filtro elegido, incluidos los no disponibles.
 - Dado un owner, cuando abre Categorías, entonces puede crear, renombrar y confirmar la eliminación de categorías.
+- Dado un owner en Carta, puede agregar productos desde un botón flotante, editar o eliminar con iconos y cambiar su disponibilidad con un interruptor; el estado se muestra con texto y punto para ambos roles.
+- Dado un owner en Categorías, puede editar o eliminar cada categoría mediante iconos accesibles.
 
 ## Casos límite
 

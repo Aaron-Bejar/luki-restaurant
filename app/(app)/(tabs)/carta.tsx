@@ -1,10 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
-import { type Href, useRouter } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
+import { ActivityIndicator, Modal, Pressable, ScrollView, Switch, Text, TextInput, View } from "react-native";
+import { Image } from "expo-image";
+import { type Href, useFocusEffect, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useSesion } from "@/auth/session-context";
+import { ALTURA_BARRA_TABS } from "@/navigation/tabs";
 import { filtrarPlatosPorCategoria, textoDisponibilidad } from "@/features/carta/presentacion";
-import { actualizarPlato, crearPlato, establecerDisponibilidadPlato, listarCarta, listarCategorias } from "@/services/carta";
+import { actualizarPlato, crearPlato, eliminarPlato, establecerDisponibilidadPlato, listarCarta, listarCategorias } from "@/services/carta";
 import type { Carta, Categoria } from "@/types/supabase";
 
 type FormularioPlato = { categoriaId: number | null; nombre: string; precio: string };
@@ -13,6 +16,8 @@ const formularioVacio: FormularioPlato = { categoriaId: null, nombre: "", precio
 export default function CartaScreen() {
   const { sesion, tokenSesion } = useSesion();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const alturaBarra = ALTURA_BARRA_TABS + insets.bottom;
   const esOwner = sesion?.rol === "owner";
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [platos, setPlatos] = useState<Carta[]>([]);
@@ -21,9 +26,11 @@ export default function CartaScreen() {
   const [error, setError] = useState<string | null>(null);
   const [errorFormulario, setErrorFormulario] = useState<string | null>(null);
   const [modalPlato, setModalPlato] = useState(false);
+  const [platoAEliminar, setPlatoAEliminar] = useState<Carta | null>(null);
   const [formulario, setFormulario] = useState<FormularioPlato>(formularioVacio);
   const [platoEditando, setPlatoEditando] = useState<Carta | null>(null);
   const [guardando, setGuardando] = useState(false);
+  const [actualizandoId, setActualizandoId] = useState<number | null>(null);
 
   const cargar = useCallback(async () => {
     if (!tokenSesion) return;
@@ -35,7 +42,7 @@ export default function CartaScreen() {
     finally { setCargando(false); }
   }, [tokenSesion]);
 
-  useEffect(() => { void cargar(); }, [cargar]);
+  useFocusEffect(useCallback(() => { void cargar(); }, [cargar]));
   const platosFiltrados = useMemo(() => filtrarPlatosPorCategoria(platos, categoriaSeleccionada), [platos, categoriaSeleccionada]);
 
   function abrirNuevoPlato() {
@@ -65,22 +72,23 @@ export default function CartaScreen() {
     finally { setGuardando(false); }
   }
   async function cambiarDisponibilidad(plato: Carta) {
-    if (!tokenSesion) return;
+    if (!tokenSesion || actualizandoId !== null) return;
     setError(null);
-    try { await establecerDisponibilidadPlato(tokenSesion, plato.id, !plato.activo); await cargar(); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "No se pudo actualizar la disponibilidad."); }
+    setActualizandoId(plato.id);
+    setPlatos((actuales) => actuales.map((item) => item.id === plato.id ? { ...item, activo: !plato.activo } : item));
+    try { await establecerDisponibilidadPlato(tokenSesion, plato.id, !plato.activo); }
+    catch (cause) { setPlatos((actuales) => actuales.map((item) => item.id === plato.id ? { ...item, activo: plato.activo } : item)); setError(cause instanceof Error ? cause.message : "No se pudo actualizar la disponibilidad."); }
+    finally { setActualizandoId(null); }
   }
 
-  return <View className="flex-1 bg-[--color-surface] px-6 py-10">
+  return <View className="flex-1 bg-[--color-surface] px-6 pt-10">
     <Text className="text-3xl font-bold text-[--color-ink]">Carta</Text>
     {esOwner ?
       <View className="mt-5 flex-row flex-wrap gap-3">
-        <Pressable onPress={abrirNuevoPlato} className="rounded-xl bg-[--color-primary] px-4 py-3">
-          <Text className="font-semibold text-white">+ Producto</Text>
-        </Pressable>
-        <Pressable onPress={() => router.push("/(app)/categorias" as Href)} className="rounded-xl border border-[--color-primary] px-4 py-3">
+        <Pressable onPress={() => router.push("/(app)/categorias" as Href)} className="min-h-11 justify-center rounded-full border border-[--color-line] px-4 py-3">
           <Text className="font-semibold text-[--color-primary]">Gestionar categorías</Text>
         </Pressable>
+        <Pressable accessibilityRole="button" onPress={() => router.push("/(app)/eliminados" as Href)} className="min-h-11 flex-row items-center justify-center gap-2 rounded-full border border-[--color-line] px-4 py-3"><Image source={require("../../../assets/icons/archive-arrow-up.svg")} style={{ width: 20, height: 20 }} tintColor="#1eab64" /><Text className="font-semibold text-[--color-primary]">Restaurar</Text></Pressable>
       </View>
       : null}
     {error ? <Text accessibilityRole="alert" className="mt-3 text-[--color-danger]">{error}</Text> : null}
@@ -91,7 +99,8 @@ export default function CartaScreen() {
           <Chip activa={categoriaSeleccionada === null} etiqueta="Todas" onPress={() => setCategoriaSeleccionada(null)} />{categorias.map((categoria) => <Chip key={categoria.id} activa={categoriaSeleccionada === categoria.id} etiqueta={categoria.nombre} onPress={() => setCategoriaSeleccionada(categoria.id)} />)}
         </ScrollView>
       </View>
-        <ScrollView className="mt-3 flex-1" contentContainerClassName="pb-10">{platosFiltrados.length === 0 ? <Text className="text-[--color-muted]">No hay platos en esta categoría.</Text> : platosFiltrados.map((plato) => <View key={plato.id} className="mb-3 rounded-2xl border border-[--color-line] bg-white p-4"><View className="flex-row items-start justify-between"><View className="flex-1"><Text className="text-lg font-semibold text-[--color-ink]">{plato.nombre}</Text><Text className="mt-1 text-base text-[--color-muted]">S/ {Number(plato.precio).toFixed(2)}</Text></View><Text className={plato.activo ? "text-[--color-primary]" : "text-[--color-danger]"}>{textoDisponibilidad(plato.activo)}</Text></View>{esOwner ? <View className="mt-3 flex-row gap-4"><Pressable onPress={() => abrirEdicion(plato)}><Text className="font-semibold text-[--color-primary]">Editar</Text></Pressable><Pressable onPress={() => void cambiarDisponibilidad(plato)}><Text className="font-semibold text-[--color-primary]">{plato.activo ? "Marcar no disponible" : "Activar"}</Text></Pressable></View> : null}</View>)}</ScrollView></>}
+        <ScrollView showsVerticalScrollIndicator={false} className="-mx-6 mt-3 flex-1" contentContainerStyle={{ paddingBottom: alturaBarra + (esOwner ? 84 : 16) }}>{platosFiltrados.length === 0 ? <Text className="text-[--color-muted]">No hay platos en esta categoría.</Text> : platosFiltrados.map((plato) => <View key={plato.id} className="flex-row items-center border-b border-[--color-line] px-6 py-4"><View className="flex-1"><Text className={`text-lg font-semibold text-[--color-ink] ${plato.activo ? "" : "opacity-60"}`}>{plato.nombre}</Text><Text className="mt-1 text-base text-[--color-muted]">S/ {Number(plato.precio).toFixed(2)}</Text><View className="mt-2 flex-row items-center gap-2"><View className={`h-2 w-2 rounded-full ${plato.activo ? "bg-[--color-primary]" : "bg-[--color-muted]"}`} /><Text className={plato.activo ? "text-sm text-[--color-primary]" : "text-sm text-[--color-muted]"}>{textoDisponibilidad(plato.activo)}</Text></View></View>{esOwner ? <View className="flex-row items-center"><Switch accessibilityLabel={`Disponibilidad de ${plato.nombre}`} value={plato.activo} disabled={actualizandoId !== null} onValueChange={() => void cambiarDisponibilidad(plato)} trackColor={{ false: "#ECEBE4", true: "#1FA55E" }} thumbColor="#FFFFFF" /><Pressable accessibilityRole="button" accessibilityLabel={`Editar ${plato.nombre}`} onPress={() => abrirEdicion(plato)} className="h-11 w-11 items-center justify-center"><Image source={require("../../../assets/icons/edit.svg")} style={{ width: 20, height: 20 }} tintColor="#6B7A70" /></Pressable><Pressable accessibilityRole="button" accessibilityLabel={`Eliminar ${plato.nombre}`} onPress={() => setPlatoAEliminar(plato)} className="h-11 w-11 items-center justify-center"><Image source={require("../../../assets/icons/delete.svg")} style={{ width: 20, height: 20 }} tintColor="#E5484D" /></Pressable></View> : null}</View>)}</ScrollView></>}
+    {esOwner ? <Pressable accessibilityRole="button" accessibilityLabel="Agregar producto" onPress={abrirNuevoPlato} style={{ bottom: alturaBarra + 16 }} className="absolute right-5 h-[52px] flex-row items-center justify-center rounded-full bg-[--color-primary] px-6 shadow-md elevation-4"><Text className="text-base font-bold text-white">+ Producto</Text></Pressable> : null}
     <Modal visible={modalPlato} transparent animationType="fade" onRequestClose={() => setModalPlato(false)}>
       <ModalBox titulo={platoEditando ? "Editar producto" : "Nuevo producto"} onClose={() => setModalPlato(false)}>
         <TextInput value={formulario.nombre} onChangeText={(nombre) => setFormulario((actual) => ({ ...actual, nombre }))} placeholder="Nombre" className="rounded-xl border border-[--color-line] px-3 py-3" />
@@ -101,7 +110,11 @@ export default function CartaScreen() {
           {categorias.map((categoria) => <Chip key={categoria.id} activa={formulario.categoriaId === categoria.id} etiqueta={categoria.nombre} onPress={() => setFormulario((actual) => ({ ...actual, categoriaId: categoria.id }))} />)}
         </ScrollView>
         <Accion disabled={guardando || categorias.length === 0} etiqueta={guardando ? "Guardando…" : "Guardar producto"} onPress={() => void guardarPlato()} />
+        {platoEditando ? <Pressable onPress={() => { setModalPlato(false); setPlatoAEliminar(platoEditando); }} className="mt-4 items-center"><Text className="font-semibold text-[--color-danger]">Eliminar producto</Text></Pressable> : null}
       </ModalBox>
+    </Modal>
+    <Modal visible={platoAEliminar !== null} transparent animationType="fade" onRequestClose={() => setPlatoAEliminar(null)}>
+      <View className="flex-1 items-center justify-center bg-black/30 px-6"><View className="w-full max-w-sm rounded-3xl bg-[--color-surface] p-6"><Text className="text-xl font-bold">Eliminar producto</Text><Text className="mt-3">Se ocultará “{platoAEliminar?.nombre}”. Podrás restaurarlo después.</Text><View className="mt-6 flex-row justify-end gap-3"><Pressable onPress={() => setPlatoAEliminar(null)}><Text>Cancelar</Text></Pressable><Pressable onPress={() => { const id = platoAEliminar?.id; setPlatoAEliminar(null); if (id && tokenSesion) void eliminarPlato(tokenSesion, id).then(cargar).catch(e => setError(e instanceof Error ? e.message : "No se pudo eliminar.")); }}><Text className="text-[--color-danger]">Eliminar</Text></Pressable></View></View></View>
     </Modal>
   </View>;
 }

@@ -7,6 +7,27 @@ export type CrearPlatoInput = Pick<Carta, "categoria_id" | "nombre" | "precio">;
 export type ActualizarPlatoInput = Partial<CrearPlatoInput & Pick<Carta, "activo">>;
 export type CrearCategoriaInput = Pick<Categoria, "nombre">;
 
+export async function listarCategoriasEliminadas(tokenSesion: string): Promise<Categoria[]> {
+  const { data, error } = await supabase.rpc("listar_categorias_eliminadas", { p_token_sesion: tokenSesion });
+  return requireData(data, error);
+}
+export async function listarPlatosEliminados(tokenSesion: string): Promise<Carta[]> {
+  const { data, error } = await supabase.rpc("listar_platos_eliminados", { p_token_sesion: tokenSesion });
+  return requireData(data, error);
+}
+export async function restaurarCategoria(tokenSesion: string, id: number): Promise<void> {
+  const { error } = await supabase.rpc("restaurar_categoria", { p_token_sesion: tokenSesion, p_categoria_id: id });
+  requireSuccess(error);
+}
+export async function eliminarPlato(tokenSesion: string, id: number): Promise<void> {
+  const { error } = await supabase.rpc("eliminar_plato", { p_token_sesion: tokenSesion, p_plato_id: id });
+  requireSuccess(error);
+}
+export async function restaurarPlato(tokenSesion: string, id: number): Promise<void> {
+  const { error } = await supabase.rpc("restaurar_plato", { p_token_sesion: tokenSesion, p_plato_id: id });
+  requireSuccess(error);
+}
+
 export async function listarCarta(tokenSesion: string): Promise<Carta[]> {
   const { data, error } = await supabase.rpc("listar_carta", { p_token_sesion: tokenSesion });
 

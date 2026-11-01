@@ -142,7 +142,7 @@ Los botones administrativos y las acciones de edición solo aparecen para `owner
 +--------------------------------------------------+
 ```
 
-La pantalla es exclusiva de `owner`: permite crear, renombrar y eliminar categorías tras confirmación. La eliminación borra sus productos asociados; los detalles históricos mantienen sus snapshots según `004-gestion-carta`.
+La pantalla es exclusiva de `owner`: permite crear, renombrar y eliminar lógicamente categorías tras confirmación. Sus productos se ocultan sin modificar su estado; los detalles históricos conservan referencias y snapshots según `004-gestion-carta`.
 
 ### Meseras / Personal
 

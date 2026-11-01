@@ -16,5 +16,5 @@ type TabIconProps = Pick<ComponentProps<typeof Image>, "accessibilityLabel"> & {
 };
 
 export function TabIcon({ activa, accessibilityLabel, pestana }: TabIconProps) {
-  return <Image accessibilityLabel={accessibilityLabel} contentFit="contain" source={iconos[pestana]} style={{ height: 20, opacity: activa ? 1 : 0.55, width: 20 }} tintColor={activa ? "#1eab64" : "#6b6b67"} />;
+  return <Image accessibilityLabel={accessibilityLabel} contentFit="contain" source={iconos[pestana]} style={{ height: 24, opacity: activa ? 1 : 0.55, width: 24 }} tintColor={activa ? "#1eab64" : "#6b6b67"} />;
 }

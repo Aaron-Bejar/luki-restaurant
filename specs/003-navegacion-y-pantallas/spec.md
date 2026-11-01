@@ -37,7 +37,7 @@ Debe mostrar `+ Producto` y el acceso a `Gestionar categorías` para el `owner`,
 
 ### Subpantalla Categorías
 
-Debe ser accesible únicamente para el `owner` desde Carta. Debe permitir crear, modificar nombre y confirmar la eliminación de categorías; esta elimina sus platos asociados y conserva snapshots de detalles históricos.
+Debe ser accesible únicamente para el `owner` desde Carta. Debe permitir crear, modificar nombre y confirmar la baja lógica de categorías; sus platos quedan ocultos sin alterar sus estados individuales. Owner puede consultar y restaurar registros eliminados.
 
 ### Personal
 

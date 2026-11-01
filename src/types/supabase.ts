@@ -7,6 +7,7 @@ export type Database = {
       carta: {
         Row: {
           activo: boolean;
+          eliminado: boolean;
           categoria_id: number;
           created_at: string;
           id: number;
@@ -16,6 +17,7 @@ export type Database = {
         };
         Insert: {
           activo?: boolean;
+          eliminado?: boolean;
           categoria_id: number;
           created_at?: string;
           id?: number;
@@ -182,6 +184,11 @@ export type Database = {
       listar_categorias_activas: { Args: { p_token_sesion: string }; Returns: Categoria[] };
       listar_categorias: { Args: { p_token_sesion: string }; Returns: Categoria[] };
       listar_carta: { Args: { p_token_sesion: string }; Returns: Carta[] };
+      listar_categorias_eliminadas: { Args: { p_token_sesion: string }; Returns: Categoria[] };
+      listar_platos_eliminados: { Args: { p_token_sesion: string }; Returns: Carta[] };
+      restaurar_categoria: { Args: { p_token_sesion: string; p_categoria_id: number }; Returns: undefined };
+      eliminar_plato: { Args: { p_token_sesion: string; p_plato_id: number }; Returns: undefined };
+      restaurar_plato: { Args: { p_token_sesion: string; p_plato_id: number }; Returns: undefined };
       crear_categoria: { Args: { p_nombre: string; p_token_sesion: string }; Returns: Categoria };
       actualizar_categoria: { Args: { p_categoria_id: number; p_nombre: string; p_token_sesion: string }; Returns: Categoria };
       eliminar_categoria: { Args: { p_categoria_id: number; p_token_sesion: string }; Returns: undefined };
